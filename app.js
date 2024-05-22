@@ -14,33 +14,83 @@ const pool = mysql.createPool({
 const app = express();
 const port = 3000;
 
-
-const wiseSayings = [
-    {
-      content: "나는 의적이다.",
-      author: "홍길동",
-    },
-    {
-      content: "나는 산적이다.",
-      author: "임꺽정",
-    },
-  ];
-
 app.get("/wise-sayings", async (req, res) => {
-    const [rows] = await pool.query("SELECT * FROM wise_saying ORDER BY id DESC");
-  
-    res.json(rows);
-  });
-  
-  app.get("/wise-sayings/:id", async (req, res) => {
-    const { id } = req.params;
-    const [rows] = await pool.query("SELECT * FROM wise_saying WHERE id = ?", [
-      id,
-    ]);
-  
-    res.json(rows[0]);
+  const [rows] = await pool.query("SELECT * FROM wise_saying ORDER BY id DESC");
+
+  res.json(rows);
 });
 
+app.get("/wise-sayings/:id", async (req, res) => {
+  const { id } = req.params;
+  const [rows] = await pool.query("SELECT * FROM wise_saying WHERE id = ?", [
+    id,
+  ]);
+
+  res.json(rows[0]);
+});
+app.delete("/wise-sayings/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const [rows] = await pool.query("SELECT * FROM wise_saying WHERE id = ?", [
+    id,
+  ]);
+
+  if (rows.length == 0) {
+    res.status(404).send("not found");
+    return;
+  }
+
+  const [rs] = await pool.query(
+    `
+    DELETE FROM wise_saying
+    WHERE id = ?
+    `,
+    [id]
+  );
+
+  res.status(200).json({
+    id,
+  });
+});
+
+app.patch("/wise-sayings/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const { author, content } = req.body;
+  const [rows] = await pool.query("SELECT * FROM wise_saying WHERE id = ?", [
+    id,
+  ]);
+  if (rows.length == 0) {
+    res.status(404).send("not found");
+    return;
+  }
+  if (!author) {
+    res.status(400).json({
+      msg: "author required",
+    });
+    return;
+  }
+  if (!content) {
+    res.status(400).json({
+      msg: "content required",
+    });
+    return;
+  }
+  const [rs] = await pool.query(
+    `
+    UPDATE wise_saying
+    SET content = ?,
+    author = ?
+    WHERE id = ?
+    `,
+    [content, author, id]
+  );
+  res.status(200).json({
+    id,
+    author,
+    content,
+  });
+});
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
