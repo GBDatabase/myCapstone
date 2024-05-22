@@ -1,7 +1,15 @@
 {
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^5.15.18",
+    "classnames": "^2.5.1",
     "express": "^4.18.1",
-    "mysql2": "^3.9.7"
+    "mysql2": "^3.9.7",
+    "react-router-dom": "^6.23.1",
+    "react-scripts": "^5.0.1",
+    "recoil": "^0.7.7",
+    "recoil-persist": "^5.1.0"
   },
   "type": "module"
 }

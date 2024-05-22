@@ -1,3 +1,13 @@
+// https://tailwindcss.com/docs/guides/create-react-app
+
+export default function App() {
+  return (
+    <h1 className="text-3xl font-bold underline">
+      Hello world!
+    </h1>
+  )
+}
+
 import express from "express";
 import mysql from "mysql2/promise";
 
@@ -94,3 +104,4 @@ app.patch("/wise-sayings/:id", async (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
