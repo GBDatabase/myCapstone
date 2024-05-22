@@ -1,107 +1,49 @@
-// https://tailwindcss.com/docs/guides/create-react-app
-
-export default function App() {
-  return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-  )
-}
-
 import express from "express";
+import cors from "cors";
 import mysql from "mysql2/promise";
 
 const pool = mysql.createPool({
   host: "localhost",
   user: "sbsst",
   password: "sbs123414",
-  database: "wise_saying",
+  database: "TodoDB",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  dateStrings: true,
 });
 
 const app = express();
+
+const corsOptions = {
+  origin: "https://cdpn.io",
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+app.use(cors(corsOptions));
+
 const port = 3000;
 
-app.get("/wise-sayings", async (req, res) => {
-  const [rows] = await pool.query("SELECT * FROM wise_saying ORDER BY id DESC");
+app.get("/:user_code/todos", async (req, res) => {
+  const { user_code } = req.params;
 
-  res.json(rows);
-});
-
-app.get("/wise-sayings/:id", async (req, res) => {
-  const { id } = req.params;
-  const [rows] = await pool.query("SELECT * FROM wise_saying WHERE id = ?", [
-    id,
-  ]);
-
-  res.json(rows[0]);
-});
-app.delete("/wise-sayings/:id", async (req, res) => {
-  const { id } = req.params;
-
-  const [rows] = await pool.query("SELECT * FROM wise_saying WHERE id = ?", [
-    id,
-  ]);
-
-  if (rows.length == 0) {
-    res.status(404).send("not found");
-    return;
-  }
-
-  const [rs] = await pool.query(
+  const [rows] = await pool.query(
     `
-    DELETE FROM wise_saying
-    WHERE id = ?
+    SELECT *
+    FROM todo
+    WHERE user_code = ?
+    ORDER BY id DESC
     `,
-    [id]
+    [user_code]
   );
 
-  res.status(200).json({
-    id,
+  res.json({
+    resultCode: "S-1",
+    msg: "성공",
+    data: rows,
   });
 });
 
-app.patch("/wise-sayings/:id", async (req, res) => {
-  const { id } = req.params;
-
-  const { author, content } = req.body;
-  const [rows] = await pool.query("SELECT * FROM wise_saying WHERE id = ?", [
-    id,
-  ]);
-  if (rows.length == 0) {
-    res.status(404).send("not found");
-    return;
-  }
-  if (!author) {
-    res.status(400).json({
-      msg: "author required",
-    });
-    return;
-  }
-  if (!content) {
-    res.status(400).json({
-      msg: "content required",
-    });
-    return;
-  }
-  const [rs] = await pool.query(
-    `
-    UPDATE wise_saying
-    SET content = ?,
-    author = ?
-    WHERE id = ?
-    `,
-    [content, author, id]
-  );
-  res.status(200).json({
-    id,
-    author,
-    content,
-  });
-});
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
-
