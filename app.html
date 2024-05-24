@@ -1,0 +1,126 @@
+<!-- 설정 : 모바일에서 화면이 축소되는 것을 방지 -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- 폰트어썸 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+<!-- 테일윈드 3.x -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- 일반 라이브러리 -->
+
+<!-- 리액트 17 -->
+<script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+<!-- MUI 5.x -->
+<script src="https://unpkg.com/@mui/material@5/umd/material-ui.development.js"></script>
+
+<!-- 리액트 라우터 6 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/history/5.3.0/history.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/6.3.0/react-router.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/6.3.0/react-router-dom.development.js"></script>
+
+<!-- 리코일 -->
+<script src="https://unpkg.com/recoil@0.7.2/umd/recoil.js"></script>
+
+<div id="root"></div>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Todo Statistics</h1>
+    <canvas id="todoChart" width="400" height="200"></canvas>
+
+    <script>
+        // Sample todo data
+        const todos = [
+            {
+                id: 1,
+                content: 'Buy groceries',
+                performDate: '2023-05-20 10:00:00',
+                completed: true,
+                completedDate: '2023-05-20 11:00:00'
+            },
+            {
+                id: 2,
+                content: 'Write report',
+                performDate: '2023-05-21 12:00:00',
+                completed: false,
+                completedDate: null
+            },
+            {
+                id: 3,
+                content: 'Exercise',
+                performDate: '2023-05-22 07:00:00',
+                completed: true,
+                completedDate: '2023-05-22 08:00:00'
+            },
+            // Add more todos as needed
+        ];
+
+        // Function to calculate statistics
+        function calculateTodoStatistics(todos) {
+            const totalTodos = todos.length;
+            const completedTodos = todos.filter(todo => todo.completed).length;
+            const pendingTodos = totalTodos - completedTodos;
+
+            const completedTodosByDate = todos.reduce((acc, todo) => {
+                if (todo.completedDate) {
+                    const date = todo.completedDate.split(' ')[0]; // Extract date part
+                    if (!acc[date]) {
+                        acc[date] = 0;
+                    }
+                    acc[date]++;
+                }
+                return acc;
+            }, {});
+
+            return {
+                totalTodos,
+                completedTodos,
+                pendingTodos,
+                completedTodosByDate
+            };
+        }
+
+        // Calculate statistics
+        const statistics = calculateTodoStatistics(todos);
+
+        // Data for the chart
+        const chartData = {
+            labels: Object.keys(statistics.completedTodosByDate),
+            datasets: [{
+                label: 'Completed Todos by Date',
+                data: Object.values(statistics.completedTodosByDate),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        // Configuration for the chart
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Render the chart
+        const ctx = document.getElementById('todoChart').getContext('2d');
+        new Chart(ctx, config);
+    </script>
+</body>
+</html>

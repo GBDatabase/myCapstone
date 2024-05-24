@@ -24,3 +24,11 @@
 
 node_modules
 package-lock.json
+src/App.css
+srcApp.js
+src/App.test.js
+src/index.js
+src/root.js
+
+public/index.html
+
